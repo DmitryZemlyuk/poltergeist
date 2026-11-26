@@ -46,25 +46,26 @@ def broom(d,A,B,neck=26,length_b=104,w0=30,w1=124):
     # Head: a tied neck, then a fan whose bottom edge bulges slightly.
     N=at(B,neck,0)
     bulge=12
-    edge=[]
-    for i in range(21):
-        f=i/20*2-1
-        edge.append(at(N,length_b+bulge*(1-f*f),(w1/2)*f))
-    head=[at(B,0,w0/2),at(N,0,w0/2)]+list(reversed(edge))+[at(N,0,-w0/2),at(B,0,-w0/2)]
-    poly(d,head,(236,186,86,255))
-    # Straws fan out from the neck to the edge without crossing.
-    tones=[(214,156,56),(248,208,112),(226,172,70)]
-    n=17
+    # Dark core so gaps between straws don't show the background, narrower than the fan.
+    core=[at(N,0,w0/2-2)]+[at(N,length_b*0.82+bulge*(1-f*f)*0.8,(w1/2)*f*0.78) for f in [i/10*2-1 for i in range(10,-1,-1)]]+[at(N,0,-w0/2+2)]
+    poly(d,core,(196,138,48,255))
+    # Many single straws with a ragged, uneven end – a broom, not a paddle.
+    tones=[(206,146,52),(246,204,108),(226,172,70),(236,188,88),(188,128,42)]
+    n=64
     for i in range(n):
         f=(i+0.5)/n*2-1
-        tip=at(N,length_b+bulge*(1-f*f)+rnd.uniform(-4,2),(w1/2)*f*0.96)
-        start=at(N,4,(w0/2)*f*0.9)
-        d.line([(q(start[0]),q(start[1])),(q(tip[0]),q(tip[1]))],fill=tones[i%3]+(255,),width=q(3))
-    # A few loose straws sticking out of the edge.
-    for f,extra in ((-0.75,10),(-0.2,8),(0.45,11),(0.85,7)):
-        a=at(N,length_b+bulge*(1-f*f)-14,(w1/2)*f*0.95)
-        b=at(N,length_b+bulge*(1-f*f)+extra,(w1/2)*f*1.02)
-        d.line([(q(a[0]),q(a[1])),(q(b[0]),q(b[1]))],fill=(226,172,70,255),width=q(3))
+        f2=f+rnd.uniform(-0.02,0.02)
+        spread=1.0+0.08*abs(f)          # outer straws splay a little
+        end_len=length_b+bulge*(1-f2*f2)+rnd.uniform(-16,8)
+        tip=at(N,end_len,(w1/2)*f2*spread)
+        start=at(N,rnd.uniform(-2,6),(w0/2)*f2*0.92)
+        d.line([(q(start[0]),q(start[1])),(q(tip[0]),q(tip[1]))],fill=tones[rnd.randrange(len(tones))]+(255,),
+               width=q(rnd.choice((2.5,3,3,3.5))))
+    # A few stray straws poking out.
+    for f,extra,tilt in ((-0.95,14,-8),(-0.5,12,4),(0.1,16,-3),(0.6,13,6),(1.0,10,10)):
+        a2=at(N,length_b*0.55,(w1/2)*f*0.6)
+        b2=at(N,length_b+bulge*(1-f*f)+extra,(w1/2)*f*1.05+tilt)
+        d.line([(q(a2[0]),q(a2[1])),(q(b2[0]),q(b2[1]))],fill=(236,188,88,255),width=q(2.5))
     # Neck shading and the red ties (as in the first version, doubled).
     poly(d,[at(B,0,w0/2),at(N,0,w0/2),at(N,0,-w0/2),at(B,0,-w0/2)],(214,160,64,255))
     for off in (3,neck-3):
@@ -103,7 +104,7 @@ def variant_a():
     broom(d,A,B,length_b=124,w0=36,w1=118)
     for t in (0.12,0.5):
         c=point_on(A,B,t); ell(d,c,27,24,(255,255,255,255))
-    star(d,(232,796),24,(255,255,255,255)); star(d,(440,872),14,(255,255,255,230))
+    star(d,(196,712),24,(255,255,255,255)); star(d,(440,872),14,(255,255,255,230))
     return finish(bg,img)
 
 img = variant_a()
