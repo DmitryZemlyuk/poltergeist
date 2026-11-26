@@ -36,7 +36,7 @@ so macOS may ask again after an update.
 swift test
 tools/bundle.sh          # dist/Poltergeist.app + zip (universal)
 python3 tools/strings.py # regenerate Localizable.strings (en, ru, uk)
-python3 tools/make_icon.py
+python3 tools/make_icon.py   # needs pillow, numpy, cairosvg
 ```
 
 GitHub Actions builds every push on macOS 26 and publishes a release for the version in `VERSION`
