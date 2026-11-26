@@ -301,7 +301,7 @@ public enum DeveloperScanner {
         let kids = versions.filter { !keep.contains($0) }.map { v in
             CleanItem(id: "nvm:" + v.path, title: .raw("Node " + v.lastPathComponent), subtitle: nil,
                       symbol: "chevron.left.forwardslash.chevron.right", tint: .green, urls: [v],
-                      size: FS.size(of: v, cancel: cancel), mode: .remove)
+                      size: FS.size(of: v, cancel: cancel), mode: .remove, checkedByDefault: false)
         }
         let kept = keep.map { $0.lastPathComponent }.sorted().joined(separator: ", ")
         guard let p = CleanItem.parent(id: "dev.nvm", title: .key("item.nvm"), subtitle: .key("item.nvm.sub", [kept]),

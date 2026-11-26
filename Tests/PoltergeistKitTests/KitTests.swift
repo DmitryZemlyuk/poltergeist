@@ -211,6 +211,7 @@ final class ScannerTests: XCTestCase {
         let items = DeveloperScanner.nvmVersions(h.context(), cancel: nil)
         let names = items.flatMap(\.leaves).flatMap(\.urls).map(\.lastPathComponent)
         XCTAssertEqual(names, ["v16.20.2"])
+        XCTAssertFalse(items.flatMap(\.leaves).contains { $0.checkedByDefault }, "old Node versions are opt-in")
     }
 }
 
