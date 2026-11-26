@@ -55,11 +55,11 @@ public enum CachesScanner {
             subtitle: { u in names[u.lastPathComponent.lowercased()] != nil ? .raw(u.lastPathComponent) : nil },
             checked: { u in
                 let n = u.lastPathComponent.lowercased()
-                return !c.runningBundleIDs.contains(n) && !n.hasPrefix("com.apple.")
+                return !c.isRunning(folderNamed: n) && !n.hasPrefix("com.apple.")
             },
             warning: { u in
                 let n = u.lastPathComponent.lowercased()
-                if c.runningBundleIDs.contains(n) { return .key("item.running") }
+                if c.isRunning(folderNamed: n) { return .key("item.running") }
                 if n.hasPrefix("com.apple.") { return .key("item.system") }
                 return nil
             })

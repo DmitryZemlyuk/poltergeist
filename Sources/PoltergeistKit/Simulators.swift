@@ -63,8 +63,14 @@ public enum Simulators {
         p.standardOutput = out
         p.standardError = err
         try p.run()
+        var errData = Data()
+        let errDone = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            errData = err.fileHandleForReading.readDataToEndOfFile()
+            errDone.signal()
+        }
         let data = out.fileHandleForReading.readDataToEndOfFile()
-        let errData = err.fileHandleForReading.readDataToEndOfFile()
+        errDone.wait()
         p.waitUntilExit()
         guard p.terminationStatus == 0 else {
             throw Failure(status: p.terminationStatus,

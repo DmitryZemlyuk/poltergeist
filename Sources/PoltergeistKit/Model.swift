@@ -126,6 +126,15 @@ public struct ScanContext: Sendable {
         self.appFolders = appFolders
     }
 
+    /// Whether a cache/data folder with this name belongs to an app that is running now.
+    /// Matches a bundle id ("com.spotify.client") or one of its parts ("Google" for com.google.chrome).
+    public func isRunning(folderNamed name: String) -> Bool {
+        let n = name.lowercased()
+        if runningBundleIDs.contains(n) { return true }
+        guard n.count >= 3 else { return false }
+        return runningBundleIDs.contains { $0.split(separator: ".").dropFirst().contains(Substring(n)) }
+    }
+
     public func url(_ relative: String) -> URL {
         home.appendingPathComponent(relative)
     }

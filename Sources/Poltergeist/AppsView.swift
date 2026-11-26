@@ -205,7 +205,9 @@ struct SettingsView: View {
             }
             Section(L("settings.search")) {
                 Picker(L("settings.downloads"), selection: $downloadsDays) { dayOptions }
+                    .onChange(of: downloadsDays) { _, _ in model.scan(.trash) }
                 Picker(L("settings.projects"), selection: $projectsDays) { dayOptions }
+                    .onChange(of: projectsDays) { _, _ in model.scan(.developer) }
             }
             Section(L("settings.access")) {
                 Label(model.fullDiskAccess ? L("fda.on") : L("fda.off"),

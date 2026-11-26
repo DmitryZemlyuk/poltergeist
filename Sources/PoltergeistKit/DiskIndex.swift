@@ -69,9 +69,8 @@ public final class DiskIndexer {
                                           "/System/Library/AssetsV2"]
 
     private var counted = 0
-    private var volume: NSObject?
     private let keys: [URLResourceKey] = [.isDirectoryKey, .isSymbolicLinkKey, .isPackageKey, .totalFileAllocatedSizeKey,
-                                          .fileAllocatedSizeKey, .contentModificationDateKey, .volumeIdentifierKey]
+                                          .fileAllocatedSizeKey, .contentModificationDateKey]
 
     public init(minKeep: Int64 = 1_000_000, skip: Set<String> = []) {
         self.minKeep = minKeep
@@ -80,7 +79,6 @@ public final class DiskIndexer {
 
     public func scan(_ root: URL, cancel: CancelFlag? = nil, progress: ((Int) -> Void)? = nil) -> FSNode {
         counted = 0
-        volume = (try? root.resourceValues(forKeys: [.volumeIdentifierKey]))?.volumeIdentifier as? NSObject
         let node = FSNode(url: root, isDirectory: true, modified: FS.modified(root))
         fill(node, collapse: false, cancel: cancel, progress: progress)
         progress?(counted)
@@ -98,7 +96,6 @@ public final class DiskIndexer {
             if v.isSymbolicLink == true { continue }
             if v.isDirectory == true {
                 if skip.contains(u.path) { continue }
-                if let vol = volume, let other = v.volumeIdentifier as? NSObject, !vol.isEqual(other) { continue }
                 let child = FSNode(url: u, isDirectory: true, modified: v.contentModificationDate)
                 // Bundles (apps, photo libraries) and node_modules are shown as one block.
                 let fold = collapse || v.isPackage == true || u.lastPathComponent == "node_modules"

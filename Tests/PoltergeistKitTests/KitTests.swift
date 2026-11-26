@@ -191,6 +191,19 @@ final class ScannerTests: XCTestCase {
         XCTAssertFalse(paths.contains("Homebrew"))
     }
 
+    func testRunningAppCacheIsLeftAlone() throws {
+        let h = try FakeHome()
+        try h.file("Library/Caches/Google/Chrome/x", bytes: 20_000)
+        try h.file("Library/Caches/com.foo.bar/x", bytes: 20_000)
+        var ctx = h.context()
+        ctx.runningBundleIDs = ["com.google.chrome"]
+        XCTAssertTrue(ctx.isRunning(folderNamed: "Google"))
+        XCTAssertFalse(ctx.isRunning(folderNamed: "com.foo.bar"))
+        let leaves = CachesScanner.scan(ctx, cancel: nil).flatMap(\.items).flatMap(\.leaves)
+        XCTAssertEqual(leaves.first { $0.urls[0].lastPathComponent == "Google" }?.checkedByDefault, false)
+        XCTAssertEqual(leaves.first { $0.urls[0].lastPathComponent == "com.foo.bar" }?.checkedByDefault, true)
+    }
+
     func testNvmKeepsNewestAndDefault() throws {
         let h = try FakeHome()
         for v in ["v16.20.2", "v18.19.0", "v22.11.0"] { try h.file(".nvm/versions/node/\(v)/bin/node", bytes: 20_000) }
