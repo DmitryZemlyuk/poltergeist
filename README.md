@@ -41,3 +41,8 @@ python3 tools/make_icon.py
 
 GitHub Actions builds every push on macOS 26 and publishes a release for the version in `VERSION`
 (only the three newest releases are kept).
+
+## Credits
+
+The broom in the app icon is the flat "Broom" emoji from [Microsoft Fluent UI Emoji](https://github.com/microsoft/fluentui-emoji),
+used under the MIT License (`tools/assets/LICENSE-fluentui-emoji.txt`).
