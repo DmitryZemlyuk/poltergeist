@@ -34,34 +34,43 @@ def star(d,c,r,fill):
         a=math.pi/4*i-math.pi/2; rr=r if i%2==0 else r*0.28
         pts.append((c[0]+rr*math.cos(a),c[1]+rr*math.sin(a)))
     poly(d,pts,fill)
-def broom(d,A,B,length_b=150,w0=36,w1=120):
+def broom(d,A,B,neck=26,length_b=104,w0=30,w1=124):
+    import random
+    rnd=random.Random(3)
     dx,dy=B[0]-A[0],B[1]-A[1]; L=math.hypot(dx,dy); ux,uy=dx/L,dy/L; nx,ny=-uy,ux
     def at(P,along,across): return (P[0]+ux*along+nx*across, P[1]+uy*along+ny*across)
-    # Handle: plain wood, as in the first version.
+    # Handle (flat, as in the first version).
     hw=13
     poly(d,[at(A,0,hw),at(B,0,hw),at(B,0,-hw),at(A,0,-hw)],(201,138,75,255))
     ell(d,A,hw,hw,(201,138,75,255))
-    # Bristles: a symmetric fan with an uneven straw edge.
-    E=at(B,length_b,0)
-    teeth=12
+    # Head: a tied neck, then a fan whose bottom edge bulges slightly.
+    N=at(B,neck,0)
+    bulge=12
     edge=[]
-    for i in range(teeth+1):
-        f=i/teeth*2-1
-        edge.append(at(E,(0 if i%2==0 else -9),(w1/2)*f))
-    shape=[at(B,0,-w0/2)]+edge+[at(B,0,w0/2)]
-    poly(d,shape,(242,190,76,255))
-    # Straws: darker and lighter lines running from the tie to the edge.
-    n=14
-    for i in range(1,n):
-        f=i/n*2-1
-        s0=at(B,4,(w0/2)*f*0.92); s1=at(E,-6,(w1/2)*f*0.94)
-        col=(212,150,44,255) if i%2 else (252,216,122,255)
-        d.line([(q(s0[0]),q(s0[1])),(q(s1[0]),q(s1[1]))],fill=col,width=q(4))
-    # Two ties.
-    for off in (2,16):
-        bw=9
+    for i in range(21):
+        f=i/20*2-1
+        edge.append(at(N,length_b+bulge*(1-f*f),(w1/2)*f))
+    head=[at(B,0,w0/2),at(N,0,w0/2)]+list(reversed(edge))+[at(N,0,-w0/2),at(B,0,-w0/2)]
+    poly(d,head,(236,186,86,255))
+    # Straws fan out from the neck to the edge without crossing.
+    tones=[(214,156,56),(248,208,112),(226,172,70)]
+    n=17
+    for i in range(n):
+        f=(i+0.5)/n*2-1
+        tip=at(N,length_b+bulge*(1-f*f)+rnd.uniform(-4,2),(w1/2)*f*0.96)
+        start=at(N,4,(w0/2)*f*0.9)
+        d.line([(q(start[0]),q(start[1])),(q(tip[0]),q(tip[1]))],fill=tones[i%3]+(255,),width=q(3))
+    # A few loose straws sticking out of the edge.
+    for f,extra in ((-0.75,10),(-0.2,8),(0.45,11),(0.85,7)):
+        a=at(N,length_b+bulge*(1-f*f)-14,(w1/2)*f*0.95)
+        b=at(N,length_b+bulge*(1-f*f)+extra,(w1/2)*f*1.02)
+        d.line([(q(a[0]),q(a[1])),(q(b[0]),q(b[1]))],fill=(226,172,70,255),width=q(3))
+    # Neck shading and the red ties (as in the first version, doubled).
+    poly(d,[at(B,0,w0/2),at(N,0,w0/2),at(N,0,-w0/2),at(B,0,-w0/2)],(214,160,64,255))
+    for off in (3,neck-3):
+        bw=10
         poly(d,[at(B,off-bw/2,w0/2+5),at(B,off+bw/2,w0/2+5),at(B,off+bw/2,-w0/2-5),at(B,off-bw/2,-w0/2-5)],(224,82,64,255))
-    return (ux,uy,nx,ny,E)
+    return (ux,uy,nx,ny,N)
 def point_on(A,B,t): return (A[0]+(B[0]-A[0])*t, A[1]+(B[1]-A[1])*t)
 MASK=None
 def squircle():
@@ -94,7 +103,7 @@ def variant_a():
     broom(d,A,B,length_b=124,w0=36,w1=118)
     for t in (0.12,0.5):
         c=point_on(A,B,t); ell(d,c,27,24,(255,255,255,255))
-    star(d,(232,796),24,(255,255,255,255)); star(d,(335,888),13,(255,255,255,230))
+    star(d,(232,796),24,(255,255,255,255)); star(d,(440,872),14,(255,255,255,230))
     return finish(bg,img)
 
 img = variant_a()
