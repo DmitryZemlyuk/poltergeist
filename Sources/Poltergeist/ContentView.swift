@@ -66,9 +66,8 @@ struct SectionIcon: View {
     let section: SectionID
     var body: some View {
         if section == .leftovers {
-            GhostGlyph(eyes: false)
-                .frame(width: 13, height: 15)
-                .foregroundStyle(Color.accentColor)
+            // A template image, like an SF Symbol: tinted by the sidebar and white when the row is selected.
+            Image(nsImage: GhostImage.template)
         } else {
             Image(systemName: section.symbol)
         }

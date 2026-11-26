@@ -26,6 +26,41 @@ struct GhostShape: Shape {
     }
 }
 
+/// The ghost as a template image for places that expect an SF Symbol (the sidebar).
+enum GhostImage {
+    static let template: NSImage = {
+        let side: CGFloat = 16
+        let img = NSImage(size: NSSize(width: side, height: side), flipped: true) { _ in
+            let s = side / 20                       // the design is 16×20 units (x 4…20, y 2…22)
+            let ox = (side - 16 * s) / 2
+            func p(_ x: CGFloat, _ y: CGFloat) -> NSPoint { NSPoint(x: ox + (x - 4) * s, y: (y - 2) * s) }
+            let path = NSBezierPath()
+            path.move(to: p(4, 22))
+            path.line(to: p(4, 10))
+            path.curve(to: p(12, 2), controlPoint1: p(4, 5.58), controlPoint2: p(7.58, 2))
+            path.curve(to: p(20, 10), controlPoint1: p(16.42, 2), controlPoint2: p(20, 5.58))
+            path.line(to: p(20, 22))
+            path.line(to: p(17, 19))
+            path.line(to: p(14.5, 21.5))
+            path.line(to: p(12, 19))
+            path.line(to: p(9.5, 21.5))
+            path.line(to: p(7, 19))
+            path.close()
+            // Eye holes, a bit larger than in the big tile so they survive at 16 pt.
+            for x in [9.2 as CGFloat, 14.8] {
+                let c = p(x, 10)
+                path.appendOval(in: NSRect(x: c.x - 1.5 * s, y: c.y - 2 * s, width: 3 * s, height: 4 * s))
+            }
+            path.windingRule = .evenOdd
+            NSColor.black.setFill()
+            path.fill()
+            return true
+        }
+        img.isTemplate = true
+        return img
+    }()
+}
+
 /// Filled ghost with eye holes (inherits the foreground style).
 struct GhostGlyph: View {
     var eyes = true
