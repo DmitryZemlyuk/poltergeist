@@ -35,39 +35,32 @@ def star(d,c,r,fill):
         pts.append((c[0]+rr*math.cos(a),c[1]+rr*math.sin(a)))
     poly(d,pts,fill)
 def broom(d,A,B,length_b=150,w0=36,w1=120):
-    import random
-    rnd=random.Random(7)
     dx,dy=B[0]-A[0],B[1]-A[1]; L=math.hypot(dx,dy); ux,uy=dx/L,dy/L; nx,ny=-uy,ux
     def at(P,along,across): return (P[0]+ux*along+nx*across, P[1]+uy*along+ny*across)
-    # Wooden handle: base tone, a lit side and a shaded side.
-    hw=12
-    poly(d,[at(A,0,hw),at(B,0,hw),at(B,0,-hw),at(A,0,-hw)],(170,108,56,255))
-    poly(d,[at(A,0,-hw),at(B,0,-hw),at(B,0,-hw*0.25),at(A,0,-hw*0.25)],(206,146,86,255))
-    poly(d,[at(A,0,hw*0.55),at(B,0,hw*0.55),at(B,0,hw),at(A,0,hw)],(140,86,42,255))
-    ell(d,A,hw,hw,(170,108,56,255)); ell(d,at(A,0,-hw*0.45),hw*0.45,hw*0.45,(206,146,86,255))
-    # Neck of tied straw, then the fanned bristles made of single straws.
-    neck=34
-    E=at(B,neck+length_b,0)
-    tip_shift=10  # bristles bent a little, as if sweeping
-    poly(d,[at(B,0,w0/2),at(B,neck,w0/2+2),at(E,0,w1/2+tip_shift),at(E,0,-w1/2+tip_shift),at(B,neck,-w0/2-2),at(B,0,-w0/2)],(214,158,58,255))
-    tones=[(244,204,104),(226,172,72),(205,146,52),(250,220,132),(186,128,44)]
-    n=58
-    for i in range(n):
-        f=i/(n-1)*2-1
-        jitter=rnd.uniform(-0.03,0.03)
-        start=at(B,rnd.uniform(0,neck*0.6),(w0/2)*(f+jitter))
-        length=length_b+neck+rnd.uniform(-22,6)
-        end=at(B,length,(w1/2)*(f+jitter)+tip_shift*(0.6+0.4*abs(f)))
-        col=tones[rnd.randrange(len(tones))]
-        d.line([(q(start[0]),q(start[1])),(q(end[0]),q(end[1]))],fill=col+(255,),width=q(rnd.choice((3,4,4,5))))
-    # Shadow under the ties and two twine bands with stitches.
-    poly(d,[at(B,neck,w0/2+2),at(B,neck+16,w0/2+7),at(B,neck+16,-w0/2-7),at(B,neck,-w0/2-2)],(178,122,40,255))
-    for off in (6,neck-4):
+    # Handle: plain wood, as in the first version.
+    hw=13
+    poly(d,[at(A,0,hw),at(B,0,hw),at(B,0,-hw),at(A,0,-hw)],(201,138,75,255))
+    ell(d,A,hw,hw,(201,138,75,255))
+    # Bristles: a symmetric fan with an uneven straw edge.
+    E=at(B,length_b,0)
+    teeth=12
+    edge=[]
+    for i in range(teeth+1):
+        f=i/teeth*2-1
+        edge.append(at(E,(0 if i%2==0 else -9),(w1/2)*f))
+    shape=[at(B,0,-w0/2)]+edge+[at(B,0,w0/2)]
+    poly(d,shape,(242,190,76,255))
+    # Straws: darker and lighter lines running from the tie to the edge.
+    n=14
+    for i in range(1,n):
+        f=i/n*2-1
+        s0=at(B,4,(w0/2)*f*0.92); s1=at(E,-6,(w1/2)*f*0.94)
+        col=(212,150,44,255) if i%2 else (252,216,122,255)
+        d.line([(q(s0[0]),q(s0[1])),(q(s1[0]),q(s1[1]))],fill=col,width=q(4))
+    # Two ties.
+    for off in (2,16):
         bw=9
-        poly(d,[at(B,off-bw/2,w0/2+4),at(B,off+bw/2,w0/2+4),at(B,off+bw/2,-w0/2-4),at(B,off-bw/2,-w0/2-4)],(176,58,44,255))
-        for k in range(5):
-            c=at(B,off,(k-2)*w0/5)
-            ell(d,c,2.2,2.2,(120,36,28,255))
+        poly(d,[at(B,off-bw/2,w0/2+5),at(B,off+bw/2,w0/2+5),at(B,off+bw/2,-w0/2-5),at(B,off-bw/2,-w0/2-5)],(224,82,64,255))
     return (ux,uy,nx,ny,E)
 def point_on(A,B,t): return (A[0]+(B[0]-A[0])*t, A[1]+(B[1]-A[1])*t)
 MASK=None
@@ -97,8 +90,8 @@ def variant_a():
     d.arc(ring,start=-90+360*0.745,end=-90+360*0.975,fill=(255,214,10,255),width=q(w))
     s=19; pts,p=ghost_pts(512-12*s+20,505-12*s,s)
     poly(d,pts,(255,255,255,255)); eyes(d,p,s,look=-0.7)
-    A=(720,470); B=(430,732)
-    broom(d,A,B,length_b=104,w0=32,w1=116)
+    A=(720,470); B=(412,748)
+    broom(d,A,B,length_b=124,w0=36,w1=118)
     for t in (0.12,0.5):
         c=point_on(A,B,t); ell(d,c,27,24,(255,255,255,255))
     star(d,(232,796),24,(255,255,255,255)); star(d,(335,888),13,(255,255,255,230))
